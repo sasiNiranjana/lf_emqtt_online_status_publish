@@ -56,6 +56,7 @@ on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) 
             io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck]);
         true ->
             io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck])
+    end,
     {ok, Client}.
 
 on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _Env) ->
@@ -70,6 +71,7 @@ on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _En
             io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason]);
         true ->
             io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason])
+    end,
     ok.
 
 on_client_subscribe(ClientId, Username, TopicTable, _Env) ->
