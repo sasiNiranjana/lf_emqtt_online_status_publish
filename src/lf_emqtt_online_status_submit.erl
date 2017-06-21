@@ -45,9 +45,9 @@ load(Env) ->
     emqttd:hook('message.acked', fun ?MODULE:on_message_acked/4, [Env]).
 
 on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) ->
-    A = binary_part(ClientId,{0,6}),B = <<"Nimbus">>,C = <<"nimbus">>,
+    A = binary_part(ClientId,{0,6}),B = <<"Nimbus">>,C = <<"nimbus">>,D = A/=B,E = A/=C,
     if
-        A /= B and A/=C ->
+        D and E ->
             Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
             ContentType="application/json",
             Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":true}",
@@ -60,9 +60,9 @@ on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) 
     {ok, Client}.
 
 on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _Env) ->
-    A = binary_part(ClientId,{0,6}),B = <<"Nimbus">>,C = <<"nimbus">>,
+    A = binary_part(ClientId,{0,6}),B = <<"Nimbus">>,C = <<"nimbus">>,D = A/=B,E = A/=C,
     if
-        A /= B and A/=C ->
+        D and E ->
             Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
             ContentType="application/json",
             Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":false}",
