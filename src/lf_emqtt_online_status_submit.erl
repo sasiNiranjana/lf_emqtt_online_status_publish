@@ -37,10 +37,7 @@ on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) 
             ContentType="application/json",
             Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":true}",
             inets:start(),
-            httpc:request(post,{Server,[],ContentType,Message},[],[]),
-            io:format("client ~s connected,api is called. connack: ~w~n", [ClientId, ConnAck]);
-        true ->
-            io:format("client ~s connected, connack: ~w~n", [ClientId, ConnAck])
+            httpc:request(post,{Server,[],ContentType,Message},[],[])
     end,
     {ok, Client}.
 
@@ -52,10 +49,7 @@ on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _En
             ContentType="application/json",
             Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":false}",
             inets:start(),
-            httpc:request(post,{Server,[],ContentType,Message},[],[]),
-            io:format("client ~s disconnected,api is called, reason: ~w~n", [ClientId, Reason]);
-        true ->
-            io:format("client ~s disconnected, reason: ~w~n", [ClientId, Reason])
+            httpc:request(post,{Server,[],ContentType,Message},[],[])
     end,
     ok.
 
