@@ -20,6 +20,8 @@
 
 -export([load/1, unload/0]).
 
+-import(string,[equal/3]).
+
 %% Hooks functions
 
 -export([on_client_connected/3, on_client_disconnected/3]).
@@ -30,21 +32,33 @@ load(Env) ->
     emqttd:hook('client.disconnected', fun ?MODULE:on_client_disconnected/3, [Env]).
 
 on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) ->
-    Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
-    ContentType="application/json",
-    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":true}",
-    inets:start(),
-    httpc:request(post,{Server,[],ContentType,Message},[],[]),
-    {ok, Client}.
+    A = binary_part(ClientId,{0,6}), B = not equal(A,"nimbus",true),
+    if
+	B ->
+	    Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
+	    ContentType="application/json",
+	    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":true}",
+	    inets:start(),
+	    httpc:request(post,{Server,[],ContentType,Message},[],[]),
+	    {ok, Client};
+    	true ->
+	    {ok, Client}
+    end.
+	
 
 on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _Env) ->
-    Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
-    ContentType="application/json",
-    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":false}",
-    inets:start(),
-    httpc:request(post,{Server,[],ContentType,Message},[],[]),
-    ok.
-
+    A = binary_part(ClientId,{0,6}), B = not equal(A,"nimbus",true),
+    if
+	B ->
+	    Server=proplists:get_value(server,_Env,"http://localhost:8080/lfservices/api/asset_online_status/emqtt_update_status"),
+	    ContentType="application/json",
+	    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":false}",
+	    inets:start(),
+	    httpc:request(post,{Server,[],ContentType,Message},[],[]),
+	    ok;
+        true ->
+	    ok
+    end.
 %% Called when the plugin application stop
 unload() ->
     emqttd:unhook('client.connected', fun ?MODULE:on_client_connected/3),
