@@ -37,11 +37,11 @@ on_client_connected(ConnAck, Client = #mqtt_client{client_id = ClientId}, _Env) 
 	    ContentType="application/json",
 	    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":true}",
 	    inets:start(),
-	    httpc:request(post,{Server,[],ContentType,Message},[],[]),
-	    {ok, Client};
+	    httpc:request(post,{Server,[],ContentType,Message},[],[]);
     	true ->
 	    {ok, Client}
-    end.
+    end,
+    {ok, Client}.
 	
 
 on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _Env) ->
@@ -52,11 +52,11 @@ on_client_disconnected(Reason, _Client = #mqtt_client{client_id = ClientId}, _En
 	    ContentType="application/json",
 	    Message = "{\"bodySerial\":\"" ++ binary_to_list(ClientId) ++ "\",\"status\":false}",
 	    inets:start(),
-	    httpc:request(post,{Server,[],ContentType,Message},[],[]),
-	    ok;
+	    httpc:request(post,{Server,[],ContentType,Message},[],[]);
         true ->
 	    ok
-    end.
+    end,
+    ok.
 %% Called when the plugin application stop
 unload() ->
     emqttd:unhook('client.connected', fun ?MODULE:on_client_connected/3),
